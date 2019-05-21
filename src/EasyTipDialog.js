@@ -3,25 +3,30 @@ import PropTypes from 'prop-types';
 import {
     Modal,
     View,
-    StyleSheet,
-    Dimensions,
     TouchableHighlight,
     TouchableOpacity,
     Text
 } from 'react-native'
-
-const {width,height} = Dimensions.get('window');
+import styles from './EasyTipDialogStyle'
 
 export default class EasyTipDialog extends Component{
 
     constructor(props) {
         super(props)
-        console.log("离线包请删除此log","2222222222222222");
+        this.state = {
+            dialogVisible: false,
+            title: this.props.title,
+            content: this.props.content,
+            cancelText: this.props.cancelText,
+            confirmText: this.props.confirmText
+        }
+        this.onConfirm = this.props.onConfirm
+        this.onCancel = this.props.onCancel
+        this.onCancelCallback = undefined
+        this.onConfirmCallback = undefined
     }
 
     static propTypes = {
-        dialogVisible: PropTypes.bool,
-
         title: PropTypes.string ,
         titleColor: PropTypes.string,
         titleSize: PropTypes.number,
@@ -32,16 +37,17 @@ export default class EasyTipDialog extends Component{
 
         cancelText: PropTypes.string,
         cancelColor: PropTypes.string,
-        cancelSize: PropTypes.string,
+        cancelSize: PropTypes.number,
 
-        cancelBtnAction: PropTypes.func.isRequired,
-        confirmBtnAction: PropTypes.func.isRequired,
+        confirmText: PropTypes.string,
+        confirmColor: PropTypes.string,
+        confirmSize: PropTypes.number,
+
+        cancelOutSide: PropTypes.bool
 
     }
 
     static defaultProps = {
-        dialogVisible: false,
-
         title: null,
         titleColor: '#000000',
         titleSize: 18,
@@ -57,15 +63,77 @@ export default class EasyTipDialog extends Component{
         confirmText: 'OK',
         confirmColor: '#FF914B',
         confirmSize: 16,
+
+        onCancel: undefined,
+        onConfirm: undefined,
+
+        cancelOutSide: false
+    }
+
+    show = (title,content,onCancelCallback,onConfirmCallback) => {
+        this.onCancelCallback = onCancelCallback;
+        this.onConfirmCallback = onConfirmCallback;
+        this.setState({
+            dialogVisible: true,
+            title: title ? title : this.props.title,
+            content: content ? content : this.props.content
+        })
+    }
+
+    _cancelOutSide = ()=> this.props.cancelOutSide ? this.setState({dialogVisible: false}) : null;
+
+    _onCancel = ()=> {
+        this.setState({
+            dialogVisible: false,
+        })
+        this.onCancel ? this.onCancel() : null;
+        this.onCancelCallback ? this.onCancelCallback() : null
+    }
+
+    _onConfirm= ()=> {
+        this.setState({
+            dialogVisible: false,
+        })
+        this.onConfirm ? this.onConfirm() : null;
+        this.onConfirmCallback ? this.onConfirmCallback() : null
+    }
+
+    _getTitleView() {
+        return this.state.title ?
+            <View style={{flexDirection: 'row' }} >
+                <Text style={[styles.titleStyle,{flex: 1,color:this.props.titleColor,fontSize: this.props.titleSize}]}>{this.state.title}</Text>
+            </View>
+            : null;
+    }
+
+    _getContentView() {
+        return this.state.content ?
+            <View style={{flexDirection: 'row' }} >
+                <Text style={[styles.contentStyle,{color: this.props.contentColor,fontSize: this.props.contentSize}]}>{this.state.content}</Text>
+            </View>
+            : null;
+    }
+
+    _getBottomView() {
+        return(
+            <View style={{flexDirection: 'row'}} >
+                <View style={{flex: 1}}/>
+                <TouchableOpacity style={{padding: 15}} onPress={()=>this._onCancel()}>
+                    <Text style={{fontSize: this.props.cancelSize,color: this.props.cancelColor}}>{this.props.cancelText}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={{padding: 15,marginRight: 15}} onPress={()=>this._onConfirm()}>
+                    <Text style={{fontSize: this.props.confirmSize,color: this.props.confirmColor}}>{this.props.confirmText}</Text>
+                </TouchableOpacity>
+            </View>
+        )
     }
 
     render() {
-        console.log("离线包请删除此log","333333333333333333");
         return(
             <Modal
                 animationType={'fade'}
                 transparent={true}
-                visible={this.props.dialogVisible}
+                visible={this.state.dialogVisible}
                 onRequestClose={()=>{}}>
                 <View style={styles.modalContainer}>
                     <TouchableHighlight
@@ -84,80 +152,4 @@ export default class EasyTipDialog extends Component{
             </Modal>
         )
     }
-
-    _cancelOutSide = ()=> {
-        this.setState({
-            visible: false
-        })
-    }
-
-    _getTitleView() {
-        return this.props.title ?
-            <View style={{flexDirection: 'row' }} >
-                <Text style={[styles.titleStyle,{flex: 1,color:this.props.titleColor,fontSize: this.props.titleSize}]}>{this.props.title}</Text>
-            </View>
-            : null;
-    }
-
-    _getContentView() {
-        return this.props.content ?
-            <View style={{flexDirection: 'row' }} >
-                <Text style={[styles.contentStyle,{color: this.props.contentColor,fontSize: this.props.contentSize}]}>{this.props.content}</Text>
-            </View>
-            : null;
-    }
-
-    _getBottomView() {
-
-        return(
-            <View style={{flexDirection: 'row',justifyContent:'space-between'}} >
-                <View style={{flex: 1}}/>
-                <TouchableOpacity style={{padding: 15}} onPress={()=>{}}>
-                    <Text style={{fontSize: this.props.cancelSize,color: this.props.cancelColor}}>{this.props.cancelText}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={{padding: 15,marginRight: 15}} onPress={()=>{}}>
-                    <Text style={{fontSize: this.props.confirmSize,color: this.props.confirmColor}}>{this.props.confirmText}</Text>
-                </TouchableOpacity>
-            </View>
-        )
-    }
 }
-
-const styles = StyleSheet.create({
-    modalContainer: {
-        flex:1,
-        flexDirection:'column',
-        alignItems:'center',
-        justifyContent:'center',
-        width:width,
-        height:height,
-        backgroundColor:'transparent',
-    },
-    mask: {
-        position:'absolute',
-        top:0,
-        left:0,
-        justifyContent:'center',
-        backgroundColor:'rgba(0,0,0,0.5)',
-        width:width,
-        height:height,
-    },
-    rootView: {
-        flexDirection: 'column',
-        alignItems: 'center',
-        width: width * 0.8,
-        backgroundColor: '#ffffff',
-        borderRadius: 3
-    },
-    titleStyle: {
-        paddingLeft: 12,
-        paddingRight: 12,
-        paddingTop: 12
-    },
-    contentStyle: {
-        paddingTop: 12,
-        paddingLeft: 12,
-        paddingRight: 12,
-        paddingBottom: 40
-    },
-})
