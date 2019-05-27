@@ -1,5 +1,5 @@
 
-# react-native-easydialog
+# react-native-easydialog (未完成)
 
 ## Getting started
 
