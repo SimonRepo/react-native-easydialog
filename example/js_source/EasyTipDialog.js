@@ -110,16 +110,16 @@ export default class EasyTipDialog extends Component{
             <View style={{flexDirection: 'row' }} >
                 <Text style={[styles.titleStyle,{flex: flexValue,color:this.props.titleColor,fontSize: this.props.titleSize}]}>{this.state.title}</Text>
             </View>
-            : null;
+         : null;
     }
 
     _getContentView() {
         let flexValue = this.props.isContentCenter ? 0 : 1;
         return this.state.content ?
-            <View style={{flexDirection: 'row' }} >
-                <Text style={[styles.contentStyle,{flex: flexValue,color: this.props.contentColor,fontSize: this.props.contentSize}]}>{this.state.content}</Text>
-            </View>
-            : null;
+           <View style={{flexDirection: 'row' }} >
+               <Text style={[styles.contentStyle,{flex: flexValue,color: this.props.contentColor,fontSize: this.props.contentSize}]}>{this.state.content}</Text>
+           </View>
+           : null;
     }
 
     _getBottomView() {
